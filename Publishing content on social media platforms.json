@@ -1,0 +1,862 @@
+{
+  "name": "Publishing content on social media platforms",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        16
+      ],
+      "id": "cad3eb82-8682-48d9-845d-4fb7aea0158f",
+      "name": "Telegram Trigger",
+      "webhookId": "c8cd759c-7dca-44b4-9fe0-5986f1e19ac7",
+      "credentials": {
+        "telegramApi": {
+          "id": "fBm4DQo3R3IAWNU4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=Rephrase this idea as a professional social media post.\n\nIdea:\n{{ $('Telegram Trigger').item.json.message.text }}\n\nLanguage:  {{$json.approved ? \"English\" : \"Arabic\"}}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -592,
+        -80
+      ],
+      "id": "c75b4ee0-db93-4295-9c82-7ea7efc700a7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        192
+      ],
+      "id": "8cdafcb0-c0d9-4a0f-a283-e3dc48a3e1d6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VoYWRbtqnPVWwfrg",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18bd5079-8195-4232-a6a4-a63a40aedc31",
+              "name": "Arabic Post",
+              "value": "={{$json[\"output\"].split(\"English:\")[0].replace(\"Arabic:\", \"\").trim()}}",
+              "type": "string"
+            },
+            {
+              "id": "4f3c0bd7-eb6c-45c3-84dd-e77a2bfe0cb9",
+              "name": "English Post",
+              "value": "={{$json[\"output\"].split(\"English:\")[1].trim()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        16
+      ],
+      "id": "06231749-f4f2-4a63-9dd5-5884e23cc3a1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-image",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
+        },
+        "prompt": "=Create a modern, clean social media image based on the core topic extracted from this text:\n\n\"{{ $('Telegram Trigger').item.json.message.text }}\"\n\nInstructions:\n- Extract ONLY the main subject of the sentence.\n- Ignore introductory words like: \"فكرة\", \"موضوع\", \"اقتراح\", or any similar fillers.\n- The final image must reflect ONLY the core idea.\n\nDesign requirements:\n- professional style\n- professional style\n- No social media icons\n- No usernames or handles\n- Focus on a clean visual concept\n\nLanguage: English",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        32,
+        16
+      ],
+      "id": "25ea2f63-5965-4645-b2f9-c6b449975378",
+      "name": "Generate an image",
+      "retryOnFail": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Q80xuDLzdMTVeCua",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1e42368-f24b-498b-a26b-017b8578fba2",
+              "name": "=approved",
+              "value": "={{ $json.data.approved }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -880,
+        16
+      ],
+      "id": "5ee35ae3-4278-4308-8819-d1165232cb0a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "person": "OITXQ78igI",
+        "text": "={{ $('Send message (telegram)').item.json.result.caption }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        -176
+      ],
+      "id": "e7b5d588-ddcd-4ab2-9617-61a595d3f58c",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "0D9JxkSd9IAPu9TH",
+          "name": "LinkedIn account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data['تأكيد ✅'] }}",
+                    "rightValue": "={{ $json.data['تأكيد ✅'] }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "d1cd7121-f055-4c21-91c4-b7155c717896"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "44ebd7ee-e6b7-49a7-a698-1f5d43144ad7",
+                    "leftValue": "={{ $json.data['تعديل ✏️'] }}",
+                    "rightValue": "={{ $json.data['تأكيد ✅'][0] }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5a510afd-3f80-473a-8298-904a0ea3b87e",
+                    "leftValue": "={{ $json.data['خروج 🛑'] }}",
+                    "rightValue": "=تعديل ✏️",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        272
+      ],
+      "id": "eb14d041-2e42-45e4-8341-c17639b2b9c2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "5115314152",
+        "message": "تم إرسال المنشور للمراجعة بنجاح ✅  \n الرجاء الإكمال عبر اختيار الإجراء المناسب من الخيارات أدناه بعد المراجعة .",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "تأكيد ✅",
+              "fieldType": "radio",
+              "defaultValue": "Yes",
+              "fieldOptions": {
+                "values": [
+                  {}
+                ]
+              }
+            },
+            {
+              "fieldLabel": "تعديل ✏️",
+              "fieldType": "radio",
+              "defaultValue": "Yes",
+              "fieldOptions": {
+                "values": [
+                  {}
+                ]
+              }
+            },
+            {
+              "fieldLabel": "خروج 🛑",
+              "fieldType": "radio",
+              "defaultValue": "Yes",
+              "fieldOptions": {
+                "values": [
+                  {}
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        16
+      ],
+      "id": "f121145d-4011-4a76-8a53-f0079b844203",
+      "name": "Send message and wait for response1",
+      "webhookId": "b4c170d6-13fe-4ad7-adee-b120a55eb0c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "fBm4DQo3R3IAWNU4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "=17841404495043937",
+        "edge": "media",
+        "options": {
+          "queryParametersJson": "={\n  \"image_url\": \"{{ $json.secure_url }}\",\n  \"caption\": \"{{ String($('Edit Fields').item.json['Arabic Post'] || 'ok').replace(/\\n+/g, ' ') }}\"\n}"
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        528
+      ],
+      "id": "f1226ad3-211d-40ce-b74f-0122f7c79352",
+      "name": "instagram",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "mgpQ4NdYyfVMVqbl",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "1041480115718428",
+        "edge": "photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "=data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $('Send message (telegram)').item.json.result.caption }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        256
+      ],
+      "id": "ab025d8a-44f1-4419-811c-1a74046cc6fa",
+      "name": "Facebook",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "mgpQ4NdYyfVMVqbl",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8480156418:AAGXQvCJvCQajZ0D1oqwVuhVuCE31g9M1-g/sendPhoto",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "5115314152"
+            },
+            {
+              "name": "caption",
+              "value": "= {{ $('Edit Fields').item.json['Arabic Post'] }}\n{{ $('Edit Fields').item.json['English Post'] }} "
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "photo",
+              "inputDataFieldName": "=data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        240,
+        16
+      ],
+      "id": "c7420f21-ffd3-4452-bcd1-93c1616f20f0",
+      "name": "Send message (telegram)"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot8480156418:AAGXQvCJvCQajZ0D1oqwVuhVuCE31g9M1-g/getFile?file_id={{$json[\"result\"][\"photo\"][3][\"file_id\"]}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        16
+      ],
+      "id": "d6963d54-3f97-4768-b719-fd4c7b6e02d9",
+      "name": "Get File"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot8480156418:AAGXQvCJvCQajZ0D1oqwVuhVuCE31g9M1-g/{{ $('Get File').item.json.result.file_path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1488,
+        256
+      ],
+      "id": "659d5df4-4935-4721-ae77-7485169b230f",
+      "name": "Download File"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "5115314152",
+        "message": "هل تريد المنشور باللغة الإنجليزية ؟",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1088,
+        16
+      ],
+      "id": "96026379-2e55-456b-af2a-44d8250dca74",
+      "name": "Send message and wait for response",
+      "webhookId": "b4c170d6-13fe-4ad7-adee-b120a55eb0c6",
+      "credentials": {
+        "telegramApi": {
+          "id": "fBm4DQo3R3IAWNU4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        528
+      ],
+      "id": "e45c7ebf-9e6f-4943-9380-f24f5af73c52",
+      "name": "Upload an asset from file data",
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "5AzlQ5zCcdqjSOT2",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "17841404495043937",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        528
+      ],
+      "id": "55bd5fdb-27fe-4200-8091-87c66c8a3d6a",
+      "name": "instagram (publish the post)",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "mgpQ4NdYyfVMVqbl",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2176,
+        528
+      ],
+      "id": "943470cc-b2d3-449b-829c-9026bc59a17d",
+      "name": "Wait",
+      "webhookId": "0d0a81ac-8565-43d0-bc49-44fcec6a4655"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Send message (telegram)').item.json.result.caption }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        48
+      ],
+      "id": "a45a5b8d-58ed-4609-a78e-a089b3e38ad0",
+      "name": "Create Tweet",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "lkw5FOK0nKZeJBJJ",
+          "name": "X account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://upload.twitter.com/1.1/media/upload.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth1Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "media",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2176,
+        144
+      ],
+      "id": "180351a6-0295-40bd-84a6-4b036c135b69",
+      "name": "HTTP Request",
+      "credentials": {
+        "oAuth1Api": {
+          "id": "JcP5e5DDHZLoEBq8",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Publishing content on social media platforms\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 928,
+        "width": 1328,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1376,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "39bac55a-0c59-42ac-a9ec-b3a89bce3b5e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "##  Content generation and design\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 944,
+        "width": 1968,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1360,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "077d7aa2-99d5-4a44-ac45-c3330a80bcc1",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Final Review: Edit or Publish \n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 944,
+        "width": 624
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "0a5cf27d-b778-4bae-a28b-5b18f140444e",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Send message (telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        []
+      ]
+    },
+    "Send message (telegram)": {
+      "main": [
+        [
+          {
+            "node": "Get File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Facebook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload an asset from file data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "instagram": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload an asset from file data": {
+      "main": [
+        [
+          {
+            "node": "instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "instagram (publish the post)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b335fd2a-d36e-4b2b-8621-aa3044f45768",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "44c2a9e28c11601b329d4855f7dd367a91627b08386ceba7e03ff89b1d762e85"
+  },
+  "id": "egODmchxRVUx2UkEuXmzD",
+  "tags": []
+}
