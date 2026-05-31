@@ -19,7 +19,7 @@
       "webhookId": "c8cd759c-7dca-44b4-9fe0-5986f1e19ac7",
       "credentials": {
         "telegramApi": {
-          "id": "fBm4DQo3R3IAWNU4",
+          "id": "YOUR_CHAT_ID",
           "name": "Telegram account"
         }
       }
@@ -374,14 +374,14 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.telegram.org/bot8480156418:AAGXQvCJvCQajZ0D1oqwVuhVuCE31g9M1-g/sendPhoto",
+        "url": "https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto",
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
           "parameters": [
             {
               "name": "chat_id",
-              "value": "5115314152"
+              "value": "YOUR_CHAT_ID"
             },
             {
               "name": "caption",
